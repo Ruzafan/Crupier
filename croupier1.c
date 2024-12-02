@@ -2,70 +2,81 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <pthread.h>
+#include <sys/wait.h>
 
 char *color_blue = "\033[01;34m";
 char *color_end = "\033[00m";
 
-void error(char *m)
+void
+error (char *m)
 {
-  write(2, m, strlen(m));
-  write(2, "\n", 1);
-  exit(0);
+  write (2, m, strlen (m));
+  write (2, "\n", 1);
+  exit (0);
 }
 
-void *run_player(void *arg)
+int
+main (int arc, char *arv[])
 {
-  char *args[] = {"player1", NULL};
-  int pid = getpid();
+  int i, n, st, pid;
   char s[100];
+  char *args[] = { "player1", NULL };
 
-  sprintf(s, "%s[%d] Player thread started%s\n", color_blue, pid, color_end);
-  if (write(1, s, strlen(s)) < 0)
-    error("write");
-
-  execv(args[0], args);
-  error("exec");
-  return NULL; // Just to satisfy the return type
-}
-
-int main(int arc, char *arv[])
-{
   if (arc != 2)
-    error("Error: wrong arguments.");
+    error ("Error: wrong arguments.");
 
-  int n = atoi(arv[1]);
-  char s[100];
-
-  sprintf(s, "\n**********Start of game (%d players, pid croupier=%d)***********\n", n, getpid());
-  if (write(1, s, strlen(s)) < 0)
-    error("write");
-
-  pthread_t *threads = malloc(n * sizeof(pthread_t));
-  if (threads == NULL)
+  n = atoi (arv[1]);
+  pthread_t *threads = malloc(n * sizeof(pthread_t)); 
+  if (threads == NULL) 
     error("malloc");
 
-  for (int i = 0; i < n; i++)
-  {
-    if (pthread_create(&threads[i], NULL, run_player, NULL) != 0)
-      error("pthread_create");
+  sprintf (s,
+           "\n**********Start of game (%d players, pid croupier=%d)***********\n",
+           n, getpid ());
+  if (write (1, s, strlen (s)) < 0)
+    error ("write");
 
-    sprintf(s, "%s[%d] Thread %d created%s\n", color_blue, getpid(), i, color_end);
-    if (write(1, s, strlen(s)) < 0)
-      error("write");
-  }
+  for (i = 0; i < n; i++)
+    {
+      switch (pid = fork ())
+        {
+        case -1:
+          error ("fork");
 
-  for (int i = 0; i < n; i++)
-  {
-    if (pthread_join(threads[i], NULL) != 0)
-      error("pthread_join");
-  }
+        case 0:
+          execv (args[0], args);
+          error ("exec");
 
+        default:
+        if (pthread_create(&threads[i], NULL, player_play(pid,s), NULL) != 0) 
+            error("pthread_create");
+        
+         
+        }
+    }
+  
   free(threads);
 
-  sprintf(s, "\n**********End of game: all players have ended***********\n");
-  if (write(1, s, strlen(s)) < 0)
-    error("write");
+  sprintf (s, "\n**********End of game: all players have ended***********\n");
+  if (write (1, s, strlen (s)) < 0)
+    error ("write");
 
-  exit(0);
+  exit (0);
+}
+
+void player_play(int pid, char s):
+{
+    sprintf (s, "%s[%d] pid=%d created%s\n", color_blue, getpid (), pid,
+            color_end);
+    if (write (1, s, strlen (s)) < 0)
+    error ("write");
+
+    pid = wait (&st);
+    if (pid == -1)
+    error ("wait");
+
+    sprintf (s, "%s[%d] pid=%d ended%s\n", color_blue, getpid (), pid,
+            color_end);
+    if (write (1, s, strlen (s)) < 0)
+    error ("write");
 }
