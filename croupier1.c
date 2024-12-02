@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <pthread.h>
 
 char *color_blue = "\033[01;34m";
 char *color_end = "\033[00m";
@@ -14,6 +15,24 @@ error (char *m)
   write (2, "\n", 1);
   exit (0);
 }
+
+void * player_play(int pid, char * s, int * st)
+{
+  sprintf (s, "%s[%d] pid=%d created%s\n", color_blue, getpid (), pid,
+          color_end);
+  if (write (1, s, strlen (s)) < 0)
+    error ("write");
+
+  pid = wait (&st);
+  if (pid == -1)
+    error ("wait");
+
+  sprintf (s, "%s[%d] pid=%d ended%s\n", color_blue, getpid (), pid,
+          color_end);
+  if (write (1, s, strlen (s)) < 0)
+    error ("write");
+}
+
 
 int
 main (int arc, char *arv[])
@@ -48,7 +67,7 @@ main (int arc, char *arv[])
           error ("exec");
 
         default:
-        if (pthread_create(&threads[i], NULL, player_play(pid,s), NULL) != 0) 
+        if (pthread_create(&threads[i], NULL, player_play(pid,s, &st), NULL) != 0)
             error("pthread_create");
         
          
@@ -62,21 +81,4 @@ main (int arc, char *arv[])
     error ("write");
 
   exit (0);
-}
-
-void player_play(int pid, char s):
-{
-    sprintf (s, "%s[%d] pid=%d created%s\n", color_blue, getpid (), pid,
-            color_end);
-    if (write (1, s, strlen (s)) < 0)
-    error ("write");
-
-    pid = wait (&st);
-    if (pid == -1)
-    error ("wait");
-
-    sprintf (s, "%s[%d] pid=%d ended%s\n", color_blue, getpid (), pid,
-            color_end);
-    if (write (1, s, strlen (s)) < 0)
-    error ("write");
 }
