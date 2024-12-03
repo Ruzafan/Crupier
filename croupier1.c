@@ -54,12 +54,14 @@ main (int arc, char *arv[])
         pid = wait(&st);
         if (pid == -1)
             error("wait");
-
-        sprintf (s, "%s[%d] pid=%d ended%s\n", color_blue, getpid (), pid, color_end);
-        if (write (1, s, strlen (s)) < 0)
-            error ("write");
     }
-
+    
+    for (i = 0; i < n; i++) {
+            sprintf (s, "%s[%d] pid=%d ended%s\n", color_blue, getpid (), pid, color_end);
+            if (write (1, s, strlen (s)) < 0)
+                error ("write");
+        
+    }
     sprintf (s, "\n**********End of game: all players have ended***********\n");
     if (write (1, s, strlen (s)) < 0)
         error ("write");
