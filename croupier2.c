@@ -6,6 +6,7 @@
 
 char *color_blue = "\033[01;34m";
 char *color_end = "\033[00m";
+char *color_green = "\033[01;32m";
 
 void
 error (char *m)
@@ -51,14 +52,12 @@ main (int arc, char *arv[])
     }
 
     // Wait for all players to finish
+   
     for (i = 0; i < n; i++) {
         pid = wait(&st);
         if (pid == -1)
             error("wait");
         int player_score = WEXITSTATUS(st);
-        sprintf (s, "%s[%d] pid=%d ended%s\n", color_blue, getpid (), pid, color_end);
-        if (write (1, s, strlen (s)) < 0)
-            error ("write");
         if (player_score > winner_score) {
             winner_pid = pid;
             winner_score = player_score;
@@ -67,7 +66,15 @@ main (int arc, char *arv[])
             winner_pid = pid;
         }
     }
-
+    
+    for (i = 0; i < n; i++) {
+            sprintf (s, "%s[%d] pid=%d ended%s\n", color_blue, getpid (), pid, color_end);
+            if (write (1, s, strlen (s)) < 0)
+                error ("write");
+        
+    }
+    sprintf (s, "%s The winner is %d with score %d %s\n", color_green, winner_pid, winner_score, color_end);
+    
     sprintf (s, "\n**********End of game: all players have ended***********\n");
     if (write (1, s, strlen (s)) < 0)
         error ("write");
