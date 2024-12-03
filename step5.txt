@@ -1,0 +1,11 @@
+Step 5: Questions
+Finally, answer the following questions about the practice:
+a) In step 2, you used the process termination code to communicate the result of the game to the croupier. However, this termination code is an integer while the result of the game can have a decimal. How did you solve this problem?
+It returns a int and I divide it by two to get it as a decimal. 2.5 x2 = 5. So I can work with the 5 and at the end print 5/2 = 2.5.
+
+b) In step 3, how does the croupier know that each player has already written his result?
+Because it waits for each player until the process terminates, with the wait method. Then the player has to be finished writting.
+
+c) In step 4, how do you guarantee that there can be no concurrency problems between the players when writing to the file?
+I have used file I/O operations in append mode. This ensure that the writes are atomic, so the write operation is treated as a single and indivisible operation.
+
