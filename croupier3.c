@@ -24,10 +24,10 @@ main (int arc, char *arv[])
     char s[100];
     char *args[] = { "player3", NULL };
 
-    //if (arc != 2)
-    //    error ("Error: wrong arguments.");
+    if (arc != 2)
+      error ("Error: wrong arguments.");
 
-    n = 2;//atoi (arv[1]);
+    n = atoi (arv[1]);
 
     sprintf (s,
              "\n**********Start of game (%d players, pid croupier=%d)***********\n",

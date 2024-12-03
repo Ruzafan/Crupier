@@ -23,11 +23,11 @@ main (int arc, char *arv[])
     int winner_pid, winner_score = -1;
     char s[100];
     char *args[] = { "player4", NULL };
+    unlink("results.txt");
+    if (arc != 2)
+      error ("Error: wrong arguments.");
 
-    //if (arc != 2)
-    //    error ("Error: wrong arguments.");
-
-    n = 2;//atoi (arv[1]);
+    n = atoi (arv[1]);
 
     sprintf (s,
              "\n**********Start of game (%d players, pid croupier=%d)***********\n",
@@ -67,13 +67,10 @@ main (int arc, char *arv[])
 
     int player_pid, player_score;
     while (fscanf(fp, "%d %d\n", &player_pid, &player_score) == 2) {
-         if (player_score > winner_score) {
-            winner_pid = pid;
+         if (player_score > winner_score || (player_score == winner_score && player_pid < winner_pid)) {
+            winner_pid = player_pid;
             winner_score = player_score;
-        } else if (player_score == winner_score && pid < winner_pid) {
-            // In case of a tie, the player with the lower PID wins
-            winner_pid = pid;
-        }
+        } 
     }
     
     for (i = 0; i < n; i++) {
