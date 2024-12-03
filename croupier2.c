@@ -22,12 +22,12 @@ main (int arc, char *arv[])
     int i, n, st, pid;
     int winner_pid, winner_score = -1;
     char s[100];
-    char *args[] = { "player1", NULL };
+    char *args[] = { "player2", NULL };
 
-    if (arc != 2)
-        error ("Error: wrong arguments.");
+    //if (arc != 2)
+    //    error ("Error: wrong arguments.");
 
-    n = atoi (arv[1]);
+    n = 2;//atoi (arv[1]);
 
     sprintf (s,
              "\n**********Start of game (%d players, pid croupier=%d)***********\n",
@@ -73,11 +73,14 @@ main (int arc, char *arv[])
                 error ("write");
         
     }
-    sprintf (s, "%s The winner is %d with score %d %s\n", color_green, winner_pid, winner_score, color_end);
     
+
     sprintf (s, "\n**********End of game: all players have ended***********\n");
     if (write (1, s, strlen (s)) < 0)
         error ("write");
 
+    sprintf (s, "And the winner is %d with score %2.1f\n", winner_pid, winner_score / 2.0);
+    if (write (1, s, strlen (s)) < 0)
+        error ("write");
     exit (0);
 }

@@ -122,5 +122,5 @@ main ()
       sleep (rand () % 2);
     }
 
-  exit (current);
+  exit(current);
 }
